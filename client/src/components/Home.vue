@@ -2,18 +2,21 @@
 <template>
   <div class="hello" v-cloak>
     <h1>{{ msg }}</h1>
-    <form class="form-inline mb-3" @submit.prevent="createItems">
+    <form class="form-inline mb-3" @submit.prevent="createItems"> <!--@keydown.enter="createItems"   v-on:update:query="inputQuery = $event" -->
       <div class="form-group">
         <vue-dadata
             :query="inputQuery"
+            v-on:query.sync="inputQuery"
             placeholder="Начните вводить город или населенный пункт"
             :token="token"
             fromBound="city"
             toBound="city"
-            :onChange="sendAddress"
+            :onChange="getAddress"
         />
+        <button v-if="!canCreate.length" class="btn btn-primary" disabled>Показать погоду</button>
+        <button v-else class="btn btn-primary" type="submit" >Показать погоду</button>
       </div>
-      <button class="btn btn-primary" type="submit" >Показать погоду</button>
+
     </form>
     <div v-if="loading">
       <div style="display: flex;justify-content: center;align-items: center">
@@ -23,43 +26,24 @@
       </div>
     </div>
 
-<!--    <div v-else-if="items.length">-->
-<!--      <div v-for="item in items" v-bind:key="item.id">-->
-<!--        <div class="row">-->
-<!--          <div class="col s12 m7">-->
-<!--            <div class="card">-->
-<!--              <div class="card-content">-->
-<!--                <span class="card-title grey-text text-darken-4">{{item.city}}<a class="waves-effect waves-teal btn-flat  grey-text text-darken-4" @click="removeItems(item.id)"><i class="material-icons medium right">close</i></a></span>-->
-<!--                <p>I am a very simple card. I am good at containing small bits of information.-->
-<!--                  I am convenient because I require little markup to use effectively.</p>-->
-<!--              </div>-->
-<!--              <div class="card-action">-->
-<!--                <a href="#">Подробнее</a>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
     <div v-else-if="items.length">
       <div v-for="item in items" v-bind:key="item.id">
         <div class="col s12 m7">
 
-          <div class="card horizontal ">
-            <div class="card-image">
-              <img src="https://lorempixel.com/100/190/nature/6">
+          <div class="card horizontal">
+            <div class="card-image weather-icon">
+              <img  :src=item.weather.icon>
             </div>
-            <div class="card-stacked">
-              <h2 class="header">{{item.city}}</h2>
-              <a class="waves-effect waves-teal btn-flat grey-text" @click="removeItems(item.id)"><i class="material-icons medium right">close</i></a>
 
+            <div class="card-stacked">
+              <a class="close-btn waves-effect waves-teal btn-flat grey-text" @click="removeItems(item.id)"><i class="material-icons medium right">close</i></a>
+              <h4 class="header">{{item.type}} {{item.name}}</h4>
               <div class="card-content">
-                <p>I am a very simple card. I am good at containing small bits of information.</p>
+                <p>{{ item.weather.temp }}</p>
               </div>
 
               <div class="card-action">
-                <a href="#">This is a link</a>
+                <a :href=item.weather.url target="_blank">Подробнее</a>
               </div>
             </div>
           </div>
@@ -82,14 +66,14 @@ export default {
     'vue-dadata': VueDadata
   },
   props: {
-    msg: String
+    msg: String,
   },
   data() {
     return {
       token: '873caad551646c02d031085a569ed0503c168569',
       loading: false,
-      city: '',
       inputQuery: '',
+      inputQ: '',
       items: [],
       coordinates: {
         latitude: '',
@@ -98,49 +82,102 @@ export default {
       geo: {
         fullName: '',
         name: '',
-        type: ''
+        type: '',
+        weather: {
+          temp: '',
+          feelsTemp: '',
+          condition: '',
+          precType: '',
+          windSpeed: '',
+          humidity: '',
+          icon: '',
+          phenomIcon: '',
+          phenomCondition: '',
+          url: ''
+        }
       },
+      canCreate: '',
     }
   },
-  computed: {
-    canCreate() {
-      console.log(this.geo.fullName)
-      return this.geo.fullName
-    }
-  },
+
   methods: {
-    sendAddress: function(suggestion) {
+    getAddress: function(suggestion) {
       const data = suggestion.data;
-
-      const geo_full_name = data.city_with_type;
-      const geo_name = data.city;
-      const geo_type = data.city_type_full;
-
-      const geo_lat = data.geo_lat;
-      const geo_lon = data.geo_lon;
-
-      this.coordinates.latitude = data.geo_lat
-      this.coordinates.longitude = data.geo_lon
 
       this.geo.fullName = data.city_with_type
       this.geo.name = data.city
       this.geo.type = data.city_type_full
 
-      console.log(geo_full_name);
-      console.log(geo_name);
-      console.log(geo_type);
-      console.log(geo_lat);
-      console.log(geo_lon);
+      this.coordinates.latitude = data.geo_lat
+      this.coordinates.longitude = data.geo_lon
+
+      // console.log(this.geo.fullName);
+      // console.log(this.geo.name);
+      // console.log(this.geo.type);
+      // console.log(this.coordinates.latitude);
+      // console.log(this.coordinates.longitude);
+      this.canCreate = this.geo.fullName
+
     },
+
+    async getWeather(lat, lon) {
+      const originalURL = `https://api.weather.yandex.ru/v2/forecast?lat=${lat}&lon=${lon}&lang=ru_RU&limit=7&hours=true&extra=true`
+      const queryURL = `https://cors-anywhere.herokuapp.com/${originalURL}`
+
+      const key = "b44dec24-8072-44f4-a47a-074278274945";
+
+      const options = {
+        method: "GET",
+        headers: {
+          "X-Yandex-API-Key": key
+        },
+      }
+
+      fetch(queryURL, options)
+          .then(response => response.text())
+          .then(result => {
+            const res = JSON.parse(result)
+            this.geo.weather.temp = res.fact.temp
+            this.geo.weather.feelsTemp = res.fact.feels_like
+            this.geo.weather.condition = res.fact.condition
+            this.geo.weather.precType = res.fact.prec_type
+            this.geo.weather.windSpeed = res.fact.wind_speed
+            this.geo.weather.humidity = res.fact.humidity
+            this.geo.weather.icon = `https://yastatic.net/weather/i/icons/blueye/color/svg/${res.fact.icon}.svg`
+            this.geo.weather.phenomCondition = res.fact.phenom_condition
+            this.geo.weather.phenomIcon = res.fact.phenom_icon
+            this.geo.weather.url = res.info.url
+            console.log(res.info.url)
+            console.log(res.fact.temp)
+            console.log(res.fact.feels_like)
+            console.log(res.fact.condition)
+            console.log(res.fact.prec_type)
+            console.log(res.fact.wind_speed)
+            console.log(res.fact.humidity)
+            console.log(this.geo.weather.icon)
+            console.log(res.fact.phenom_condition)
+            console.log(res.fact.phenom_icon)
+          })
+          .catch(error => console.log("error", error));
+    },
+
     async createItems() {
-      console.log(this.geo)
+
+      const x = await this.getWeather(this.coordinates.latitude, this.coordinates.longitude)
+
+      console.log(x)
+
       const {...item} = this.geo
-      console.log(item)
+
       const newItem = await this.request('/api/items', 'POST', item)
 
       this.items.unshift(newItem)
+      //
+      // this.$emit("update:inputQuery",'')
+      // this.$emit("update:inputQuery",'')
+      this.$emit('update:query', 'this.inputQuery')
 
-      this.inputQuery = ''
+      // this.canCreate = ''
     },
 
     async removeItems(id) {
@@ -177,8 +214,6 @@ export default {
   }
 }
 
-
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -188,6 +223,10 @@ export default {
   display: none;
 }
 
+.weather-icon {
+  display: block;
+  width: 125px;
+}
 
 h3 {
   margin: 40px 0 0;
@@ -204,10 +243,22 @@ a {
   color: #42b983;
 }
 
-.card-title {
-  display: flex;
-  justify-content: space-between;
+.close-btn {
+  display: block;
+  padding: 24px;
+  margin-left: auto;
+  position: relative
 }
+
+.close-btn > i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0 -50% 0 0;
+  transform: translate(-50%, -50%)
+}
+
+
 
 </style>
 

@@ -20,7 +20,6 @@ app.post('/api/items', (req, res) => {
   res.status(201).json(item)
 })
 
-
 // DELETE
 app.delete('/api/items/:id', (req, res) => {
   STORAGE = STORAGE.filter(c => c.id !== req.params.id)
