@@ -5,8 +5,8 @@
     <form class="form-inline mb-3" @submit.prevent="createItems"> <!--@keydown.enter="createItems"   v-on:update:query="inputQuery = $event" -->
       <div class="form-group">
         <vue-dadata
-            :query="inputQuery"
-            v-on:query.sync="inputQuery"
+            v-if="!needClear"
+            :query.sync="inputQuery"
             placeholder="Начните вводить город или населенный пункт"
             :token="token"
             fromBound="city"
@@ -72,6 +72,7 @@ export default {
     return {
       token: '873caad551646c02d031085a569ed0503c168569',
       loading: false,
+      needClear: false,
       inputQuery: '',
       inputQ: '',
       items: [],
@@ -133,51 +134,36 @@ export default {
         },
       }
 
-      fetch(queryURL, options)
-          .then(response => response.text())
-          .then(result => {
-            const res = JSON.parse(result)
-            this.geo.weather.temp = res.fact.temp
-            this.geo.weather.feelsTemp = res.fact.feels_like
-            this.geo.weather.condition = res.fact.condition
-            this.geo.weather.precType = res.fact.prec_type
-            this.geo.weather.windSpeed = res.fact.wind_speed
-            this.geo.weather.humidity = res.fact.humidity
-            this.geo.weather.icon = `https://yastatic.net/weather/i/icons/blueye/color/svg/${res.fact.icon}.svg`
-            this.geo.weather.phenomCondition = res.fact.phenom_condition
-            this.geo.weather.phenomIcon = res.fact.phenom_icon
-            this.geo.weather.url = res.info.url
-            console.log(res.info.url)
-            console.log(res.fact.temp)
-            console.log(res.fact.feels_like)
-            console.log(res.fact.condition)
-            console.log(res.fact.prec_type)
-            console.log(res.fact.wind_speed)
-            console.log(res.fact.humidity)
-            console.log(this.geo.weather.icon)
-            console.log(res.fact.phenom_condition)
-            console.log(res.fact.phenom_icon)
-          })
-          .catch(error => console.log("error", error));
+      const result = await fetch(queryURL, options)
+      const res = await result.json()
+
+      this.geo.weather.temp = res.fact.temp
+      this.geo.weather.feelsTemp = res.fact.feels_like
+      this.geo.weather.condition = res.fact.condition
+      this.geo.weather.precType = res.fact.prec_type
+      this.geo.weather.windSpeed = res.fact.wind_speed
+      this.geo.weather.humidity = res.fact.humidity
+      this.geo.weather.icon = `https://yastatic.net/weather/i/icons/blueye/color/svg/${res.fact.icon}.svg`
+      this.geo.weather.phenomCondition = res.fact.phenom_condition
+      this.geo.weather.phenomIcon = res.fact.phenom_icon
+      this.geo.weather.url = res.info.url
     },
 
     async createItems() {
 
-      const x = await this.getWeather(this.coordinates.latitude, this.coordinates.longitude)
-
-      console.log(x)
+      await this.getWeather(this.coordinates.latitude, this.coordinates.longitude)
 
       const {...item} = this.geo
 
       const newItem = await this.request('/api/items', 'POST', item)
 
       this.items.unshift(newItem)
-      //
-      // this.$emit("update:inputQuery",'')
-      // this.$emit("update:inputQuery",'')
-      this.$emit('update:query', 'this.inputQuery')
 
-      // this.canCreate = ''
+      this.needClear = true
+      this.$nextTick(function () {
+        this.needClear = false
+      })
+      this.canCreate = ''
     },
 
     async removeItems(id) {
