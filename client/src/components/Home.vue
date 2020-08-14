@@ -49,6 +49,7 @@
                   <span>{{ item.weather.phenomCondition }}</span>
                   <span>ветер {{ item.weather.windSpeed }} м/c</span>
                   <span class="black-text">
+                    <img src="https://img.icons8.com/ios/50/000000/wind.png"/>
                     {{item.weather.suggest}}
                   </span>
                 </div>
@@ -105,6 +106,7 @@ export default {
           icon: '',
           phenomIcon: '',
           phenomCondition: '',
+          daytime: '',
           suggest: '',
           url: ''
         },
@@ -178,15 +180,12 @@ export default {
       return ruCondition
     },
 
-    async clothingSuggest (feelTemp, condition) {
+    async clothingSuggest (feelTemp, condition, daytime) {
 
       let firstAdvice
       let secondAdvice
 
       switch (condition) {
-        case 'clear':
-          secondAdvice = ' , возможно стоит надеть солнцезащитные очки'
-          break
         case 'drizzle':
           secondAdvice = ' , возможно стоит взять с собой зонт'
           break
@@ -222,6 +221,10 @@ export default {
           break
         default:
           secondAdvice = ''
+      }
+
+      if (daytime === 'd' && condition === 'clear') {
+        secondAdvice = ' , возможно стоит надеть солнцезащитные очки'
       }
 
       if (feelTemp < -15){
@@ -273,7 +276,7 @@ export default {
       this.geo.weather.temp = res.fact.temp
       this.geo.weather.feelsTemp = res.fact.feels_like
       this.geo.weather.condition = await this.getRuCondition(res.fact.condition)
-      this.geo.weather.suggest = await this.clothingSuggest(res.fact.feels_like, res.fact.condition)
+      this.geo.weather.suggest = await this.clothingSuggest(res.fact.feels_like, res.fact.condition, res.fact.daytime)
       this.geo.weather.precType = res.fact.prec_type
       this.geo.weather.windSpeed = res.fact.wind_speed
       this.geo.weather.humidity = res.fact.humidity
@@ -284,6 +287,15 @@ export default {
     },
 
     async createItems() {
+
+      // console.log(this.items.fullName)
+      // console.log(this.geo.fullName)
+      // this.items.forEach(el => {
+      //   if (el.fullName === this.geo.fullName){
+      //     return false
+      //   }
+      // })
+
 
       this.loading = true
       await this.getWeather(this.geo.coordinates.latitude, this.geo.coordinates.longitude)
