@@ -17,7 +17,7 @@
         <button v-if="!canCreate.length" class="btn btn-primary centre-align col s12" disabled>Показать погоду</button>
         <button v-else class="btn btn-primary centre-align col s12" type="submit" >Показать погоду</button>
           <div class="row center">&nbsp;</div>
-        <a v-if="items.length" class="waves-effect waves-teal btn-flat right col s2 offset-s2" @click="removeAllItems">удалить все</a>
+        <a v-if="items.length" class="waves-effect waves-teal clear-all btn-flat right col s2 offset-s2" @click="removeAllItems">удалить все</a>
         </div>
       </div>
 
@@ -41,7 +41,17 @@
               <a class="close-btn waves-effect waves-teal btn-flat grey-text pulse" @click="removeItems(item.id)"><i class="material-icons medium right">close</i></a>
               <h4 class="header">{{item.type}} {{item.name}}</h4>
               <div class="card-content">
-                <p>{{ item.weather.temp }}</p>
+                <h3>{{ item.weather.temp }}	&#176;С</h3>
+
+                <div class="row">
+                  <span>ощущается как <h6>{{ item.weather.feelsTemp }}	&#176;С</h6></span>
+                  <span>{{ item.weather.condition }} </span>
+                  <span>{{ item.weather.phenomCondition }}</span>
+                  <span>ветер {{ item.weather.windSpeed }} м/c</span>
+                  <span class="black-text">
+                    {{item.weather.suggest}}
+                  </span>
+                </div>
               </div>
 
               <div class="card-action">
@@ -53,7 +63,6 @@
       </div>
     </div>
 
-    <p v-else>Начните вводить населенный пункт в котором хотите узнать погоду и нажмите на кнопку</p>
     <div>
   </div>
   </div>
@@ -96,6 +105,7 @@ export default {
           icon: '',
           phenomIcon: '',
           phenomCondition: '',
+          suggest: '',
           url: ''
         },
       },
@@ -104,16 +114,144 @@ export default {
   },
 
   methods: {
+    async getRuCondition(condition) {
+
+      let ruCondition
+
+      switch (condition) {
+        case 'clear':
+          ruCondition = 'ясно'
+          break
+        case 'partly-cloudy':
+          ruCondition = 'малооблачно'
+          break
+        case 'cloudy':
+          ruCondition = 'облачно с прояснениями'
+          break
+        case 'drizzle':
+          ruCondition = 'морось'
+          break
+        case 'light-rain':
+          ruCondition = 'небольшой дождь'
+          break
+        case 'rain':
+          ruCondition = 'дождь'
+          break
+        case 'moderate-rain':
+          ruCondition = 'умеренно сильный дождь'
+          break
+        case 'heavy-rain':
+          ruCondition = 'сильный дождь'
+          break
+        case 'continuous-heavy-rain':
+          ruCondition = 'длительный сильный дождь'
+          break
+        case 'showers':
+          ruCondition = 'ливень'
+          break
+        case 'wet-snow':
+          ruCondition = 'дождь со снегом'
+          break
+        case 'light-snow':
+          ruCondition = 'небольшой снег'
+          break
+        case 'snow':
+          ruCondition = 'снег'
+          break
+        case 'snow-showers':
+          ruCondition = 'снегопад'
+          break
+        case 'hail':
+          ruCondition = 'град'
+          break
+        case 'thunderstorm':
+          ruCondition = 'гроза'
+          break
+        case 'thunderstorm-with-rain':
+          ruCondition = 'дождь с грозой'
+          break
+        case 'thunderstorm-with-hail':
+          ruCondition = 'гроза с градом'
+          break
+      }
+
+      return ruCondition
+    },
+
+    async clothingSuggest (feelTemp, condition) {
+
+      let firstAdvice
+      let secondAdvice
+
+      switch (condition) {
+        case 'clear':
+          secondAdvice = ' , возможно стоит надеть солнцезащитные очки'
+          break
+        case 'drizzle':
+          secondAdvice = ' , возможно стоит взять с собой зонт'
+          break
+        case 'light-rain':
+          secondAdvice = ' , возможно стоит взять с собой зонт'
+          break
+        case 'rain':
+          secondAdvice = ' и взять зонт'
+          break
+        case 'moderate-rain':
+          secondAdvice = ' и взять зонт'
+          break
+        case 'heavy-rain':
+          secondAdvice = ' , обуть резиновые сапоги и взять зонт'
+          break
+        case 'continuous-heavy-rain':
+          secondAdvice = ', обуть резиновые сапоги, надеть плащ или взять зонт'
+          break
+        case 'showers':
+          secondAdvice = ' и взять зонт'
+          break
+        case 'hail':
+          secondAdvice = '. Возможно стоит остаться дома'
+          break
+        case 'thunderstorm':
+          secondAdvice = '. Возможно стоит остаться дома'
+          break
+        case 'thunderstorm-with-rain':
+          secondAdvice = ' , также надеть плащ или взять зонт. Возможно стоит остаться дома'
+          break
+        case 'thunderstorm-with-hail':
+          secondAdvice = '. Возможно стоит остаться дома'
+          break
+        default:
+          secondAdvice = ''
+      }
+
+      if (feelTemp < -15){
+        firstAdvice = 'нужно надеть зимнюю утепленную куртку';
+      } else if (feelTemp <= 0) {
+        firstAdvice = 'стоит надеть зимнюю куртку';
+      } else if (feelTemp > 0 && feelTemp < 10) {
+        firstAdvice = 'можно выйти в куртке';
+      } else if (feelTemp > 10 && feelTemp < 15) {
+        firstAdvice = 'стоит надеть легкую куртку или кофту';
+      } else if (feelTemp > 15 && feelTemp < 20) {
+        firstAdvice = 'можно выйти в футболке, но стоит подумать о длином рукаве';
+      } else if (feelTemp > 20 && feelTemp < 25) {
+        firstAdvice = 'можно выйти в футболке';
+      } else {
+        firstAdvice = 'можно выйти в футболке и шортах';
+      }
+
+      return `Сегодня ${firstAdvice}${secondAdvice}`
+    },
+
     getAddress: function(suggestion) {
       const data = suggestion.data;
 
       this.geo.fullName = data.city_with_type
       this.geo.name = data.city
-      this.geo.type = data.city_type_full
+      this.geo.type = (data.city_type_full === 'город')  ? '' : data.city_type_full
       this.geo.coordinates.latitude = data.geo_lat
       this.geo.coordinates.longitude = data.geo_lon
       this.canCreate = this.geo.fullName
-
     },
 
     async getWeather(lat, lon) {
@@ -134,7 +272,8 @@ export default {
 
       this.geo.weather.temp = res.fact.temp
       this.geo.weather.feelsTemp = res.fact.feels_like
-      this.geo.weather.condition = res.fact.condition
+      this.geo.weather.condition = await this.getRuCondition(res.fact.condition)
+      this.geo.weather.suggest = await this.clothingSuggest(res.fact.feels_like, res.fact.condition)
       this.geo.weather.precType = res.fact.prec_type
       this.geo.weather.windSpeed = res.fact.wind_speed
       this.geo.weather.humidity = res.fact.humidity
@@ -215,6 +354,10 @@ export default {
 .weather-icon {
   display: block;
   width: 125px;
+}
+
+.clear-all {
+  text-align: right;
 }
 
 h3 {
