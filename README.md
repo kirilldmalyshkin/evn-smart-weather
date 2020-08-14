@@ -39,6 +39,8 @@ html шаблон для клиента
 
 ### Запуск приложения 
 
+ Для работы необходим **node.js**, если у вас его нет, можете посмотреть как установить [установка node.js](https://nodejs.org/en/download/package-manager/)
+
   1. Клонировать репозиторий ```git clone git@github.com:kirilldmalyshkin/evn-smart-weather.git```
   2. Запустить сервер
 ```
