@@ -63,29 +63,6 @@
               </div>
             </div>
           </div>
-          <div class="card horizontal" :id="item.id">
-            <div class="card-stacked">
-              <a class="close-btn waves-effect waves-teal btn-flat grey-text pulse" @click="removeItems(item.id)"><i
-                  class="material-icons medium right">close</i>
-              </a>
-              <h5 class="left">{{ item.type }} {{ item.name }}</h5>
-              <div class="row">
-                <div class="card-image  weather-icon">
-                  <img :src=item.weather.icon alt="weather">
-                </div>
-                <h3>{{ item.weather.temp }} &#176;С</h3>
-              </div>
-
-              <div class="card-content">
-                <span>{{ item.weather.condition }} </span>
-
-              </div>
-
-              <div class="card-action">
-                <a :href=item.weather.url target="_blank">Подробнее</a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -298,7 +275,9 @@ export default {
 
     async getWeather(lat, lon) {
       const originalURL = `https://api.weather.yandex.ru/v2/forecast?lat=${lat}&lon=${lon}&lang=ru_RU&limit=7&hours=true&extra=true`
-      const queryURL = `https://cors-anywhere.herokuapp.com/${originalURL}`
+      // const proxy = 'https://cors.x.y/http://load-balancer.us-east-1.elb.amazonaws.com/blocks/270865/'
+      const proxy = 'https://cors-anywhere.herokuapp.com/'
+      const queryURL = proxy + originalURL
 
       const key = "b44dec24-8072-44f4-a47a-074278274945";
 
