@@ -34,26 +34,45 @@
         <div class="col s12 m7">
 
           <div class="card horizontal" :id="item.id">
-            <div class="card-image  weather-icon">
-              <img  :src=item.weather.icon>
-            </div>
-
             <div class="card-stacked">
-              <a class="close-btn waves-effect waves-teal btn-flat grey-text pulse" @click="removeItems(item.id)"><i class="material-icons medium right">close</i></a>
-              <h4 class="header">{{item.type}} {{item.name}}</h4>
-              <div class="card-content">
-                <h3>{{ item.weather.temp }}	&#176;С</h3>
-
-                <div class="row">
-                  <span>ощущается как <h6>{{ item.weather.feelsTemp }}	&#176;С</h6></span>
-                  <span>{{ item.weather.condition }} </span>
-                  <span>{{ item.weather.phenomCondition }}</span>
-                  <span>ветер {{ item.weather.windSpeed }} м/c</span>
-                  <span class="black-text">
-                    <img src="https://img.icons8.com/ios/50/000000/wind.png"/>
-                    {{item.weather.suggest}}
-                  </span>
+              <a class="close-btn waves-effect waves-teal btn-flat grey-text pulse" @click="removeItems(item.id)"><i
+                  class="material-icons medium right">close</i>
+              </a>
+              <h5 class="left header">{{ item.type }} {{ item.name }}</h5>
+              <div class="row weather-info">
+                <div class="col s4">
+                  <div class="left card-image weather-icon">
+                    <img :src=item.weather.icon alt="weather">
+                  </div>
+                    <h3 class="left temp-header">{{ item.weather.temp }} &#176;С</h3>
                 </div>
+                <div class="col s4">
+                    <p class="left grey-text left-align"><span class="black-text">{{ item.weather.condition }}</span><br>ощущается как <span class="black-text">{{ item.weather.feelsTemp }}	&#176;С</span><br>ветер <span class="black-text">{{ item.weather.windSpeed }} м/с</span> </p>
+                </div>
+                <div class="col s4">
+                  <p class="black-text suggest right-align">
+                    {{ item.weather.suggest }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card horizontal" :id="item.id">
+            <div class="card-stacked">
+              <a class="close-btn waves-effect waves-teal btn-flat grey-text pulse" @click="removeItems(item.id)"><i
+                  class="material-icons medium right">close</i>
+              </a>
+              <h5 class="left">{{ item.type }} {{ item.name }}</h5>
+              <div class="row">
+                <div class="card-image  weather-icon">
+                  <img :src=item.weather.icon alt="weather">
+                </div>
+                <h3>{{ item.weather.temp }} &#176;С</h3>
+              </div>
+
+              <div class="card-content">
+                  <span>{{ item.weather.condition }} </span>
+
               </div>
 
               <div class="card-action">
@@ -132,6 +151,9 @@ export default {
           break
         case 'cloudy':
           ruCondition = 'облачно с прояснениями'
+          break
+        case 'overcast':
+          ruCondition = 'пасмурно'
           break
         case 'drizzle':
           ruCondition = 'морось'
@@ -384,6 +406,23 @@ export default {
   color: #9e9e9e;
 }
 
+.header {
+  display: flex;
+  margin: 0 0 24px 24px;
+}
+
+.weather-info {
+  margin-left: 0;
+}
+
+.temp-header {
+  /*margin: 0;*/
+}
+
+.bold {
+  font-weight: bold;
+}
+
 h3 {
   margin: 40px 0 0;
 }
@@ -404,6 +443,10 @@ a {
   padding: 24px;
   margin-left: auto;
   position: relative
+}
+
+.suggest {
+  margin-right: 18px;
 }
 
 .close-btn > i {
