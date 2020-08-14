@@ -15,7 +15,8 @@
         />
         <div class="row">
         <button v-if="!canCreate.length" class="btn btn-primary centre-align col s12" disabled>Показать погоду</button>
-        <button v-else class="btn btn-primary centre-align col s12" type="submit" >Показать погоду</button>
+        <button v-else class="btn btn-primary waves-effect waves-teal centre-align col s12" type="submit" >Показать погоду</button>
+          <span v-if="itemExist.length">В списке уже есть <a :href="itemExistId">{{ itemExist }}</a></span>
           <div class="row center">&nbsp;</div>
         <a v-if="items.length" class="waves-effect waves-teal clear-all btn-flat right col s2 offset-s2" @click="removeAllItems">удалить все</a>
         </div>
@@ -32,7 +33,7 @@
       <div v-for="item in items" v-bind:key="item.id">
         <div class="col s12 m7">
 
-          <div class="card horizontal">
+          <div class="card horizontal" :id="item.id">
             <div class="card-image  weather-icon">
               <img  :src=item.weather.icon>
             </div>
@@ -112,6 +113,8 @@ export default {
         },
       },
       canCreate: '',
+      itemExist: '',
+      itemExistId: '',
     }
   },
 
@@ -255,6 +258,14 @@ export default {
       this.geo.coordinates.latitude = data.geo_lat
       this.geo.coordinates.longitude = data.geo_lon
       this.canCreate = this.geo.fullName
+
+      this.items.forEach(el => {
+        if (el.fullName === this.geo.fullName){
+          this.itemExist = this.geo.fullName
+          this.itemExistId = `#${el.id}`
+          this.canCreate = ''
+        }
+      })
     },
 
     async getWeather(lat, lon) {
@@ -288,30 +299,24 @@ export default {
 
     async createItems() {
 
-      // console.log(this.items.fullName)
-      // console.log(this.geo.fullName)
-      // this.items.forEach(el => {
-      //   if (el.fullName === this.geo.fullName){
-      //     return false
-      //   }
-      // })
+      if (!this.itemExist) {
+        this.loading = true
+        await this.getWeather(this.geo.coordinates.latitude, this.geo.coordinates.longitude)
+        this.loading = false
 
+        const {...item} = this.geo
 
-      this.loading = true
-      await this.getWeather(this.geo.coordinates.latitude, this.geo.coordinates.longitude)
-      this.loading = false
+        const newItem = await this.request('/api/items', 'POST', item)
 
-      const {...item} = this.geo
+        this.items.unshift(newItem)
 
-      const newItem = await this.request('/api/items', 'POST', item)
+        this.needClear = true
+        this.$nextTick(function () {
+          this.needClear = false
+        })
+        this.canCreate = ''
+      }
 
-      this.items.unshift(newItem)
-
-      this.needClear = true
-      this.$nextTick(function () {
-        this.needClear = false
-      })
-      this.canCreate = ''
     },
 
     async removeItems(id) {
@@ -384,7 +389,7 @@ li {
   margin: 0 10px;
 }
 a {
-  color: #9e9e9e;
+  color: #42b983;
 }
 
 .close-btn {
