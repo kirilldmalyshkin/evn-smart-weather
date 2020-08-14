@@ -50,13 +50,13 @@
                   </div>
                   <h3 class="left temp-header">{{ item.weather.temp }} &#176;С</h3>
                 </div>
-                <div class="col s4">
+                <div class="col s3">
                   <p class="left grey-text left-align"><span class="black-text">{{ item.weather.condition }}</span><br>ощущается
                     как <span class="black-text">{{ item.weather.feelsTemp }}	&#176;С</span><br>ветер <span
                         class="black-text">{{ item.weather.windSpeed }} м/с</span></p>
                 </div>
                 <div class="col s4">
-                  <p class="black-text suggest right-align">
+                  <p class="black-text suggest left-align">
                     {{ item.weather.suggest }}
                   </p>
                 </div>
