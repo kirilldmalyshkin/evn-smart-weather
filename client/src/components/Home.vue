@@ -16,7 +16,7 @@
         <div class="row">
         <button v-if="!canCreate.length" class="btn btn-primary centre-align col s12" disabled>Показать погоду</button>
         <button v-else class="btn btn-primary waves-effect waves-teal centre-align col s12" type="submit" >Показать погоду</button>
-          <span v-if="itemExist.length">В списке уже есть <a :href="itemExistId">{{ itemExist }}</a></span>
+          <span v-if="itemExist.length">Похоже, что в списке уже есть <a :href="itemExistId">{{ itemExist }}</a></span>
           <div class="row center">&nbsp;</div>
         <a v-if="items.length" class="waves-effect waves-teal clear-all btn-flat right col s2 offset-s2" @click="removeAllItems">удалить все</a>
         </div>
@@ -326,6 +326,12 @@ export default {
 
     async removeAllItems() {
       this.loading = true
+      this.needClear = true
+      this.$nextTick(function () {
+        this.needClear = false
+      })
+      this.canCreate = ''
+      this.itemExist = ''
       this.items.forEach(el => this.removeItems(el.id))
       this.loading = false
     },
@@ -375,6 +381,7 @@ export default {
 
 .clear-all {
   text-align: right;
+  color: #9e9e9e;
 }
 
 h3 {
