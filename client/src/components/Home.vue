@@ -262,11 +262,11 @@ export default {
         firstAdvice = 'нужно надеть зимнюю утепленную куртку';
       } else if (feelTemp <= 0) {
         firstAdvice = 'стоит надеть зимнюю куртку';
-      } else if (feelTemp > 0 && feelTemp < 10) {
+      } else if (feelTemp > 0 && feelTemp <= 10) {
         firstAdvice = 'можно выйти в куртке';
-      } else if (feelTemp > 10 && feelTemp < 15) {
+      } else if (feelTemp > 10 && feelTemp <= 15) {
         firstAdvice = 'стоит надеть легкую куртку или кофту';
-      } else if (feelTemp > 15 && feelTemp < 20) {
+      } else if (feelTemp > 15 && feelTemp <= 20) {
         firstAdvice = 'можно выйти в футболке, но стоит подумать о длином рукаве';
       } else if (feelTemp > 20 && feelTemp < 25) {
         firstAdvice = 'можно выйти в футболке';
