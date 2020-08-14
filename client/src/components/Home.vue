@@ -1,8 +1,8 @@
-
 <template>
   <div class="hello" v-cloak>
-<!--    <h1>{{ msg }}</h1>-->
-    <form class="form-inline mb-3" @submit.prevent="createItems"> <!--@keydown.enter="createItems"   v-on:update:query="inputQuery = $event" -->
+    <!--    <h1>{{ msg }}</h1>-->
+    <form class="form-inline mb-3" @submit.prevent="createItems">
+      <!--@keydown.enter="createItems"   v-on:update:query="inputQuery = $event" -->
       <div class="form-group">
         <vue-dadata
             v-if="!needClear"
@@ -14,11 +14,15 @@
             :onChange="getAddress"
         />
         <div class="row">
-        <button v-if="!canCreate.length" class="btn btn-primary centre-align col s12" disabled>Показать погоду</button>
-        <button v-else class="btn btn-primary waves-effect waves-teal centre-align col s12" type="submit" >Показать погоду</button>
+          <button v-if="!canCreate.length" class="btn btn-primary centre-align col s12" disabled>Показать погоду
+          </button>
+          <button v-else class="btn btn-primary waves-effect waves-teal centre-align col s12" type="submit">Показать
+            погоду
+          </button>
           <span v-if="itemExist.length">Похоже, что в списке уже есть <a :href="itemExistId">{{ itemExist }}</a></span>
           <div class="row center">&nbsp;</div>
-        <a v-if="items.length" class="waves-effect waves-teal clear-all btn-flat right col s2 offset-s2" @click="removeAllItems">удалить все</a>
+          <a v-if="items.length" class="waves-effect waves-teal clear-all btn-flat right col s2 offset-s2"
+             @click="removeAllItems">удалить все</a>
         </div>
       </div>
 
@@ -44,10 +48,12 @@
                   <div class="left card-image weather-icon">
                     <img :src=item.weather.icon alt="weather">
                   </div>
-                    <h3 class="left temp-header">{{ item.weather.temp }} &#176;С</h3>
+                  <h3 class="left temp-header">{{ item.weather.temp }} &#176;С</h3>
                 </div>
                 <div class="col s4">
-                    <p class="left grey-text left-align"><span class="black-text">{{ item.weather.condition }}</span><br>ощущается как <span class="black-text">{{ item.weather.feelsTemp }}	&#176;С</span><br>ветер <span class="black-text">{{ item.weather.windSpeed }} м/с</span> </p>
+                  <p class="left grey-text left-align"><span class="black-text">{{ item.weather.condition }}</span><br>ощущается
+                    как <span class="black-text">{{ item.weather.feelsTemp }}	&#176;С</span><br>ветер <span
+                        class="black-text">{{ item.weather.windSpeed }} м/с</span></p>
                 </div>
                 <div class="col s4">
                   <p class="black-text suggest right-align">
@@ -71,7 +77,7 @@
               </div>
 
               <div class="card-content">
-                  <span>{{ item.weather.condition }} </span>
+                <span>{{ item.weather.condition }} </span>
 
               </div>
 
@@ -85,7 +91,7 @@
     </div>
 
     <div>
-  </div>
+    </div>
   </div>
 </template>
 
@@ -205,7 +211,7 @@ export default {
       return ruCondition
     },
 
-    async clothingSuggest (feelTemp, condition, daytime) {
+    async clothingSuggest(feelTemp, condition, daytime) {
 
       let firstAdvice
       let secondAdvice
@@ -252,7 +258,7 @@ export default {
         secondAdvice = ' , возможно стоит надеть солнцезащитные очки'
       }
 
-      if (feelTemp < -15){
+      if (feelTemp < -15) {
         firstAdvice = 'нужно надеть зимнюю утепленную куртку';
       } else if (feelTemp <= 0) {
         firstAdvice = 'стоит надеть зимнюю куртку';
@@ -271,18 +277,18 @@ export default {
       return `Сегодня ${firstAdvice}${secondAdvice}`
     },
 
-    getAddress: function(suggestion) {
+    getAddress: function (suggestion) {
       const data = suggestion.data;
 
       this.geo.fullName = data.city_with_type
       this.geo.name = data.city
-      this.geo.type = (data.city_type_full === 'город')  ? '' : data.city_type_full
+      this.geo.type = (data.city_type_full === 'город') ? '' : data.city_type_full
       this.geo.coordinates.latitude = data.geo_lat
       this.geo.coordinates.longitude = data.geo_lon
       this.canCreate = this.geo.fullName
 
       this.items.forEach(el => {
-        if (el.fullName === this.geo.fullName){
+        if (el.fullName === this.geo.fullName) {
           this.itemExist = this.geo.fullName
           this.itemExistId = `#${el.id}`
           this.canCreate = ''
@@ -426,14 +432,17 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }
@@ -456,7 +465,6 @@ a {
   margin: 0 -50% 0 0;
   transform: translate(-50%, -50%)
 }
-
 
 
 </style>
