@@ -305,25 +305,24 @@ export default {
     },
 
     async createItems() {
+      if (this.canCreate.length) {
+          this.loading = true
+          await this.getWeather(this.geo.coordinates.latitude, this.geo.coordinates.longitude)
+          this.loading = false
 
-      if (!this.itemExist) {
-        this.loading = true
-        await this.getWeather(this.geo.coordinates.latitude, this.geo.coordinates.longitude)
-        this.loading = false
+          const {...item} = this.geo
 
-        const {...item} = this.geo
+          const newItem = await this.request('/api/items', 'POST', item)
 
-        const newItem = await this.request('/api/items', 'POST', item)
+          this.items.unshift(newItem)
 
-        this.items.unshift(newItem)
-
-        this.needClear = true
-        this.$nextTick(function () {
-          this.needClear = false
-        })
-        this.canCreate = ''
+          this.needClear = true
+          this.$nextTick(function () {
+            this.needClear = false
+          })
+          this.canCreate = ''
+          this.itemExist = ''
       }
-
     },
 
     async removeItems(id) {
